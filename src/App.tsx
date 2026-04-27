@@ -13,6 +13,7 @@ import { PurchaseRequestsPage } from './pages/procurement/PurchaseRequestsPage'
 import { OrdersPage } from './pages/procurement/OrdersPage'
 import { NotificationsPage } from './pages/notifications/NotificationsPage'
 
+
 const qc = new QueryClient({
   defaultOptions: { queries: { retry: 1, staleTime: 30_000 } },
 })

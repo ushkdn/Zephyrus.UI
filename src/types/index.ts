@@ -7,10 +7,30 @@ export interface ApiResponse<T> {
 // Auth
 export type UserRole = 'Admin' | 'Manager' | 'Buyer'
 
+export const ROLE_LABELS: Record<UserRole, string> = {
+  Admin: 'Администратор',
+  Manager: 'Менеджер',
+  Buyer: 'Закупщик',
+}
+
 export interface AuthUser {
   id: string
   email: string
+  firstName: string
+  lastName: string
   role: UserRole
+}
+
+export interface UserProfile {
+  id: string
+  email: string
+  firstName: string
+  middleName: string
+  lastName: string
+  role: UserRole
+  isActive: boolean
+  dateCreated: string
+  dateUpdated: string
 }
 
 export interface AuthTokens {

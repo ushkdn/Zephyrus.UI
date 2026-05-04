@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { useAuthStore } from '../../store/auth.store'
+import { ROLE_LABELS } from '../../types'
+import { userApi } from '../../api/user.api'
 
 interface NavItem {
   to: string
@@ -21,11 +25,26 @@ const navItems: NavItem[] = [
 
 export function Sidebar() {
   const { user, logout, hasRole } = useAuthStore()
+  const [profileOpen, setProfileOpen] = useState(false)
+
+  const { data: profile } = useQuery({
+    queryKey: ['user-profile', user?.id],
+    queryFn: () => userApi.getById(user!.id),
+    enabled: !!user?.id && profileOpen,
+  })
 
   const visibleItems = navItems.filter((item) => {
     if (!item.roles) return true
     return hasRole(...item.roles)
   })
+
+  const initials = user?.firstName
+    ? `${user.firstName[0]}${user.lastName?.[0] ?? ''}`.toUpperCase()
+    : user?.email?.[0]?.toUpperCase() ?? '?'
+
+  const fullName = user?.firstName
+    ? `${user.firstName} ${user.lastName}`
+    : user?.email ?? ''
 
   return (
     <aside className="w-64 bg-slate-900 flex flex-col h-screen sticky top-0">
@@ -57,16 +76,68 @@ export function Sidebar() {
         ))}
       </nav>
 
-      <div className="px-4 py-4 border-t border-slate-700">
-        <div className="flex items-center gap-3 mb-3">
+      <div className="px-4 py-4 border-t border-slate-700 relative">
+        {profileOpen && (
+          <div className="absolute bottom-full left-0 right-0 mb-2 mx-4 bg-slate-800 rounded-xl border border-slate-700 shadow-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-white">Профиль</p>
+              <button
+                onClick={() => setProfileOpen(false)}
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div className="space-y-2.5">
+              <div>
+                <p className="text-xs text-slate-500">ФИО</p>
+                <p className="text-sm text-white">
+                  {profile?.data
+                    ? `${profile.data.lastName} ${profile.data.firstName} ${profile.data.middleName}`.trim()
+                    : `${user?.lastName ?? ''} ${user?.firstName ?? ''}`.trim()}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Email</p>
+                <p className="text-sm text-white truncate">{profile?.data?.email ?? user?.email}</p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500">Роль</p>
+                <p className="text-sm text-white">{user?.role ? ROLE_LABELS[user.role] : '—'}</p>
+              </div>
+              {profile?.data && (
+                <div>
+                  <p className="text-xs text-slate-500">Дата регистрации</p>
+                  <p className="text-sm text-white">
+                    {new Date(profile.data.dateCreated).toLocaleDateString('ru-RU')}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        <button
+          onClick={() => setProfileOpen((v) => !v)}
+          className="w-full flex items-center gap-3 mb-3 px-1 py-1 rounded-lg hover:bg-slate-800 transition-colors text-left"
+        >
           <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-semibold shrink-0">
-            {user?.email[0].toUpperCase()}
+            {initials}
           </div>
-          <div className="min-w-0">
-            <p className="text-sm text-white truncate">{user?.email}</p>
-            <p className="text-xs text-slate-400">{user?.role}</p>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm text-white truncate">{fullName}</p>
+            <p className="text-xs text-slate-400">{user?.role ? ROLE_LABELS[user.role] : ''}</p>
           </div>
-        </div>
+          <svg
+            className={clsx('w-4 h-4 text-slate-400 shrink-0 transition-transform', profileOpen && 'rotate-180')}
+            fill="none" stroke="currentColor" viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+          </svg>
+        </button>
+
         <button
           onClick={logout}
           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"

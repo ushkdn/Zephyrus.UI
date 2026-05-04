@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '../store/auth.store'
+import { ROLE_LABELS } from '../types'
 import { categoriesApi } from '../api/categories.api'
 import { productsApi } from '../api/products.api'
 import { suppliersApi } from '../api/suppliers.api'
@@ -41,8 +42,8 @@ export function DashboardPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Добро пожаловать{user?.email ? `, ${user.email}` : ''}!</h1>
-        <p className="text-sm text-gray-500 mt-1">Роль: <span className="font-medium text-indigo-600">{user?.role}</span></p>
+        <h1 className="text-2xl font-bold text-gray-900">Добро пожаловать{user?.firstName ? `, ${user.firstName} ${user.lastName}` : ''}!</h1>
+        <p className="text-sm text-gray-500 mt-1">Роль: <span className="font-medium text-indigo-600">{user?.role ? ROLE_LABELS[user.role] : ''}</span></p>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

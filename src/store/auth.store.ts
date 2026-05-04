@@ -6,6 +6,8 @@ import type { AuthUser, AuthTokens, UserRole } from '../types'
 interface JwtPayload {
   sub: string
   email: string
+  given_name: string
+  family_name: string
   role: UserRole
   exp: number
 }
@@ -33,7 +35,7 @@ export const useAuthStore = create<AuthState>()(
           set({
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken,
-            user: { id: payload.sub, email: payload.email, role: payload.role },
+            user: { id: payload.sub, email: payload.email, firstName: payload.given_name, lastName: payload.family_name, role: payload.role },
           })
         } catch {
           set({ accessToken: null, refreshToken: null, user: null })

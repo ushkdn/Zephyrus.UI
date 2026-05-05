@@ -43,6 +43,16 @@ export interface SignInRequest {
   password: string
 }
 
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  confirmationCode: string
+  newPassword: string
+  confirmPassword: string
+}
+
 export interface SignUpRequest {
   email: string
   password: string

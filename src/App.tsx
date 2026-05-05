@@ -4,6 +4,8 @@ import { Layout } from './components/layout/Layout'
 import { ProtectedRoute } from './components/auth/ProtectedRoute'
 import { LoginPage } from './pages/auth/LoginPage'
 import { RegisterPage } from './pages/auth/RegisterPage'
+import { ForgotPasswordPage } from './pages/auth/ForgotPasswordPage'
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { CategoriesPage } from './pages/categories/CategoriesPage'
 import { ProductsPage } from './pages/products/ProductsPage'
@@ -29,6 +31,8 @@ function ProtectedLayout() {
 const router = createBrowserRouter([
   { path: '/login', element: <LoginPage /> },
   { path: '/register', element: <RegisterPage /> },
+  { path: '/forgot-password', element: <ForgotPasswordPage /> },
+  { path: '/reset-password/:userId', element: <ResetPasswordPage /> },
   {
     element: <ProtectedLayout />,
     children: [

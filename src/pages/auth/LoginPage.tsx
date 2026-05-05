@@ -55,13 +55,20 @@ export function LoginPage() {
             error={errors.email?.message}
             {...register('email')}
           />
-          <Input
-            label="Пароль"
-            type="password"
-            placeholder="••••••••"
-            error={errors.password?.message}
-            {...register('password')}
-          />
+          <div>
+            <Input
+              label="Пароль"
+              type="password"
+              placeholder="••••••••"
+              error={errors.password?.message}
+              {...register('password')}
+            />
+            <div className="mt-1 text-right">
+              <Link to="/forgot-password" className="text-xs text-indigo-600 hover:underline">
+                Забыли пароль?
+              </Link>
+            </div>
+          </div>
 
           {serverError && (
             <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700">

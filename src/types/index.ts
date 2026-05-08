@@ -122,17 +122,22 @@ export interface PurchaseRequest {
   dateCreated: string
 }
 
-export interface Order {
-  id: string
+export interface OrderItem {
   purchaseRequestId: string
-  supplierId: string
-  productId: string
-  quantity: number
   unitPrice: number
   currency: string
   totalPrice: number
+}
+
+export interface Order {
+  id: string
+  supplierId: string
+  totalPrice: number
   status: OrderStatus
+  createdBy: string
   dateCreated: string
+  dateUpdated: string
+  items: OrderItem[]
 }
 
 // Notification

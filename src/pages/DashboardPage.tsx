@@ -85,7 +85,7 @@ export function DashboardPage() {
                 <li key={o.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                   <span className="text-sm text-gray-600 font-mono">{o.id.slice(0, 8)}…</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-700">{o.totalPrice.toLocaleString()} {o.currency}</span>
+                    <span className="text-sm font-medium text-gray-700">{o.totalPrice.toLocaleString()}</span>
                     <Badge label={o.status} />
                   </div>
                 </li>

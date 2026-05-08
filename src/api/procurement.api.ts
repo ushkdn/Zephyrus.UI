@@ -7,9 +7,8 @@ interface CreatePurchaseRequestData {
   unit: string
 }
 
-interface CreateOrderData {
+interface OrderItemData {
   purchaseRequestId: string
-  supplierId: string
   unitPrice: number
   currency: string
 }
@@ -40,8 +39,8 @@ export const procurementApi = {
   getOrderById: (id: string) =>
     apiClient.get<ApiResponse<Order>>(`/orders/${id}`).then((r) => r.data),
 
-  createOrder: (data: CreateOrderData) =>
-    apiClient.post<ApiResponse<Order>>('/orders', data).then((r) => r.data),
+  createOrder: (supplierId: string, items: OrderItemData[]) =>
+    apiClient.post<ApiResponse<Order>>('/orders', { supplierId, items }).then((r) => r.data),
 
   confirmOrder: (id: string) =>
     apiClient.patch<ApiResponse<Order>>(`/orders/${id}/confirm`).then((r) => r.data),

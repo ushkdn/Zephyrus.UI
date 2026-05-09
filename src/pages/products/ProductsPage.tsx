@@ -11,6 +11,7 @@ import { Modal } from '../../components/ui/Modal'
 import { Select } from '../../components/ui/Select'
 import { PageLoader } from '../../components/ui/Spinner'
 import { Badge } from '../../components/ui/Badge'
+import { useAuthStore } from '../../store/auth.store'
 import type { Product } from '../../types'
 
 const schema = z.object({
@@ -40,6 +41,8 @@ const UNIT_OPTIONS = [
 
 export function ProductsPage() {
   const qc = useQueryClient()
+  const { hasRole } = useAuthStore()
+  const isAdmin = hasRole('Admin')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
 
@@ -91,7 +94,7 @@ export function ProductsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Товары</h1>
           <p className="text-sm text-gray-500 mt-0.5">{products.length} записей</p>
         </div>
-        <Button onClick={openCreate}>+ Добавить</Button>
+        {isAdmin && <Button onClick={openCreate}>+ Добавить</Button>}
       </div>
 
       {isLoading ? (
@@ -105,12 +108,12 @@ export function ProductsPage() {
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Ед. изм.</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Категория</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Статус</th>
-                <th className="px-4 py-3" />
+                {isAdmin && <th className="px-4 py-3" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {products.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Нет товаров</td></tr>
+                <tr><td colSpan={isAdmin ? 5 : 4} className="px-4 py-8 text-center text-gray-400">Нет товаров</td></tr>
               )}
               {products.map((p) => {
                 const cat = categories.find((c) => c.id === p.categoryId)
@@ -122,19 +125,21 @@ export function ProductsPage() {
                     <td className="px-4 py-3">
                       <Badge label={p.isActive ? 'Активен' : 'Неактивен'} variant={p.isActive ? 'green' : 'gray'} />
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" variant="secondary" onClick={() => openEdit(p)}>Изменить</Button>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          loading={deleteMutation.isPending && deleteMutation.variables === p.id}
-                          onClick={() => { if (confirm('Удалить?')) deleteMutation.mutate(p.id) }}
-                        >
-                          Удалить
-                        </Button>
-                      </div>
-                    </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2 justify-end">
+                          <Button size="sm" variant="secondary" onClick={() => openEdit(p)}>Изменить</Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            loading={deleteMutation.isPending && deleteMutation.variables === p.id}
+                            onClick={() => { if (confirm('Удалить?')) deleteMutation.mutate(p.id) }}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 )
               })}

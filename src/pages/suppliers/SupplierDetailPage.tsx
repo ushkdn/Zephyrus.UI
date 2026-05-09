@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { suppliersApi } from '../../api/suppliers.api'
 import { productsApi } from '../../api/products.api'
+import { useAuthStore } from '../../store/auth.store'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Modal } from '../../components/ui/Modal'
@@ -33,6 +34,8 @@ const currencyOptions = [
 export function SupplierDetailPage() {
   const { id } = useParams<{ id: string }>()
   const qc = useQueryClient()
+  const { hasRole } = useAuthStore()
+  const isAdmin = hasRole('Admin')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<SupplierProduct | null>(null)
 
@@ -115,7 +118,7 @@ export function SupplierDetailPage() {
 
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Прайс-лист ({supplierProducts.length})</h2>
-        <Button onClick={openAdd}>+ Добавить товар</Button>
+        {isAdmin && <Button onClick={openAdd}>+ Добавить товар</Button>}
       </div>
 
       {spLoading ? (
@@ -129,12 +132,12 @@ export function SupplierDetailPage() {
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Цена</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Валюта</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Доступен</th>
-                <th className="px-4 py-3" />
+                {isAdmin && <th className="px-4 py-3" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {supplierProducts.length === 0 && (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-gray-400">Нет товаров в прайс-листе</td></tr>
+                <tr><td colSpan={isAdmin ? 5 : 4} className="px-4 py-8 text-center text-gray-400">Нет товаров в прайс-листе</td></tr>
               )}
               {supplierProducts.map((sp) => {
                 const product = allProducts.find((p) => p.id === sp.productId)
@@ -146,19 +149,21 @@ export function SupplierDetailPage() {
                     <td className="px-4 py-3">
                       <Badge label={sp.isAvailable ? 'Да' : 'Нет'} variant={sp.isAvailable ? 'green' : 'gray'} />
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" variant="secondary" onClick={() => openEdit(sp)}>Изменить</Button>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          loading={removeMutation.isPending && removeMutation.variables === sp.id}
-                          onClick={() => { if (confirm('Удалить?')) removeMutation.mutate(sp.id) }}
-                        >
-                          Удалить
-                        </Button>
-                      </div>
-                    </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2 justify-end">
+                          <Button size="sm" variant="secondary" onClick={() => openEdit(sp)}>Изменить</Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            loading={removeMutation.isPending && removeMutation.variables === sp.id}
+                            onClick={() => { if (confirm('Удалить?')) removeMutation.mutate(sp.id) }}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 )
               })}

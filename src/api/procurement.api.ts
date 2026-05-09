@@ -4,7 +4,6 @@ import type { ApiResponse, PurchaseRequest, Order } from '../types'
 interface CreatePurchaseRequestData {
   productId: string
   quantity: number
-  unit: string
 }
 
 interface OrderItemData {
@@ -20,6 +19,9 @@ interface RejectData {
 export const procurementApi = {
   getAllPurchaseRequests: () =>
     apiClient.get<ApiResponse<PurchaseRequest[]>>('/purchase-requests').then((r) => r.data),
+
+  getMyPurchaseRequests: () =>
+    apiClient.get<ApiResponse<PurchaseRequest[]>>('/purchase-requests/my').then((r) => r.data),
 
   getPurchaseRequestById: (id: string) =>
     apiClient.get<ApiResponse<PurchaseRequest>>(`/purchase-requests/${id}`).then((r) => r.data),

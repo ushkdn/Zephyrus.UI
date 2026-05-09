@@ -33,8 +33,10 @@ export function PurchaseRequestsPage() {
   const [rejectTarget, setRejectTarget] = useState<PurchaseRequest | null>(null)
 
   const { data, isLoading } = useQuery({
-    queryKey: ['purchase-requests'],
-    queryFn: () => procurementApi.getAllPurchaseRequests(),
+    queryKey: ['purchase-requests', isManager ? 'all' : 'my'],
+    queryFn: () => isManager
+      ? procurementApi.getAllPurchaseRequests()
+      : procurementApi.getMyPurchaseRequests(),
   })
   const { data: prodData } = useQuery({ queryKey: ['products'], queryFn: () => productsApi.getAll() })
 
@@ -45,10 +47,8 @@ export function PurchaseRequestsPage() {
   const { register: regReject, handleSubmit: handleReject, reset: resetReject, formState: { errors: rejectErrors } } = useForm<RejectData>({ resolver: zodResolver(rejectSchema) })
 
   const createMutation = useMutation({
-    mutationFn: (d: FormData) => {
-      const unit = products.find((p) => p.id === d.productId)?.unit ?? ''
-      return procurementApi.createPurchaseRequest({ productId: d.productId, quantity: d.quantity, unit })
-    },
+    mutationFn: (d: FormData) =>
+      procurementApi.createPurchaseRequest({ productId: d.productId, quantity: d.quantity }),
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['purchase-requests'] }); setCreateOpen(false); reset() },
   })
 
@@ -71,7 +71,7 @@ export function PurchaseRequestsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Заявки на закупку</h1>
           <p className="text-sm text-gray-500 mt-0.5">{requests.length} записей</p>
         </div>
-        <Button onClick={() => setCreateOpen(true)}>+ Создать заявку</Button>
+        {!isManager && <Button onClick={() => setCreateOpen(true)}>+ Создать заявку</Button>}
       </div>
 
       {isLoading ? (

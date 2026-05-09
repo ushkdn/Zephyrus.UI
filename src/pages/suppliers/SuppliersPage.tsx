@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Link } from 'react-router-dom'
 import { suppliersApi } from '../../api/suppliers.api'
+import { useAuthStore } from '../../store/auth.store'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Modal } from '../../components/ui/Modal'
@@ -24,6 +25,8 @@ type FormData = z.infer<typeof schema>
 
 export function SuppliersPage() {
   const qc = useQueryClient()
+  const { hasRole } = useAuthStore()
+  const isAdmin = hasRole('Admin')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Supplier | null>(null)
 
@@ -70,7 +73,7 @@ export function SuppliersPage() {
           <h1 className="text-2xl font-bold text-gray-900">Поставщики</h1>
           <p className="text-sm text-gray-500 mt-0.5">{suppliers.length} записей</p>
         </div>
-        <Button onClick={openCreate}>+ Добавить</Button>
+        {isAdmin && <Button onClick={openCreate}>+ Добавить</Button>}
       </div>
 
       {isLoading ? (
@@ -85,12 +88,12 @@ export function SuppliersPage() {
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Email</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Телефон</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Статус</th>
-                <th className="px-4 py-3" />
+                {isAdmin && <th className="px-4 py-3" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {suppliers.length === 0 && (
-                <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">Нет поставщиков</td></tr>
+                <tr><td colSpan={isAdmin ? 6 : 5} className="px-4 py-8 text-center text-gray-400">Нет поставщиков</td></tr>
               )}
               {suppliers.map((s) => (
                 <tr key={s.id} className="hover:bg-gray-50 transition-colors">
@@ -103,19 +106,21 @@ export function SuppliersPage() {
                   <td className="px-4 py-3">
                     <Badge label={s.isActive ? 'Активен' : 'Неактивен'} variant={s.isActive ? 'green' : 'gray'} />
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2 justify-end">
-                      <Button size="sm" variant="secondary" onClick={() => openEdit(s)}>Изменить</Button>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        loading={deleteMutation.isPending && deleteMutation.variables === s.id}
-                        onClick={() => { if (confirm('Удалить поставщика?')) deleteMutation.mutate(s.id) }}
-                      >
-                        Удалить
-                      </Button>
-                    </div>
-                  </td>
+                  {isAdmin && (
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2 justify-end">
+                        <Button size="sm" variant="secondary" onClick={() => openEdit(s)}>Изменить</Button>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          loading={deleteMutation.isPending && deleteMutation.variables === s.id}
+                          onClick={() => { if (confirm('Удалить поставщика?')) deleteMutation.mutate(s.id) }}
+                        >
+                          Удалить
+                        </Button>
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

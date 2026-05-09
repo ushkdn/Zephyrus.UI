@@ -16,6 +16,23 @@ const variantMap: Record<string, BadgeVariant> = {
   Confirmed: 'indigo',
   Delivered: 'green',
   Cancelled: 'red',
+  PurchaseRequestCreated: 'blue',
+  PurchaseRequestApproved: 'green',
+  PurchaseRequestRejected: 'red',
+}
+
+const labelMap: Record<string, string> = {
+  Pending: 'На рассмотрении',
+  Approved: 'Одобрена',
+  Rejected: 'Отклонена',
+  Ordered: 'Заказана',
+  Created: 'Создан',
+  Confirmed: 'Подтверждён',
+  Delivered: 'Доставлен',
+  Cancelled: 'Отменён',
+  PurchaseRequestCreated: 'Заявка создана',
+  PurchaseRequestApproved: 'Заявка одобрена',
+  PurchaseRequestRejected: 'Заявка отклонена',
 }
 
 export function Badge({ label, variant }: BadgeProps) {
@@ -31,7 +48,7 @@ export function Badge({ label, variant }: BadgeProps) {
         'bg-indigo-100 text-indigo-800': v === 'indigo',
       })}
     >
-      {label}
+      {labelMap[label] ?? label}
     </span>
   )
 }

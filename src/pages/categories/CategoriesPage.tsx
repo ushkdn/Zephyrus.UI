@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { categoriesApi } from '../../api/categories.api'
+import { useAuthStore } from '../../store/auth.store'
 import { Button } from '../../components/ui/Button'
 import { Input } from '../../components/ui/Input'
 import { Modal } from '../../components/ui/Modal'
@@ -20,6 +21,8 @@ type FormData = z.infer<typeof schema>
 
 export function CategoriesPage() {
   const qc = useQueryClient()
+  const { hasRole } = useAuthStore()
+  const isAdmin = hasRole('Admin')
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Category | null>(null)
 
@@ -70,7 +73,7 @@ export function CategoriesPage() {
           <h1 className="text-2xl font-bold text-gray-900">Категории</h1>
           <p className="text-sm text-gray-500 mt-0.5">{categories.length} записей</p>
         </div>
-        <Button onClick={openCreate}>+ Добавить</Button>
+        {isAdmin && <Button onClick={openCreate}>+ Добавить</Button>}
       </div>
 
       {isLoading ? (
@@ -83,12 +86,12 @@ export function CategoriesPage() {
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Название</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Родитель</th>
                 <th className="px-4 py-3 text-left font-semibold text-gray-600">Создана</th>
-                <th className="px-4 py-3" />
+                {isAdmin && <th className="px-4 py-3" />}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
               {categories.length === 0 && (
-                <tr><td colSpan={4} className="px-4 py-8 text-center text-gray-400">Нет категорий</td></tr>
+                <tr><td colSpan={isAdmin ? 4 : 3} className="px-4 py-8 text-center text-gray-400">Нет категорий</td></tr>
               )}
               {categories.map((cat) => {
                 const parent = categories.find((c) => c.id === cat.parentId)
@@ -97,19 +100,21 @@ export function CategoriesPage() {
                     <td className="px-4 py-3 font-medium text-gray-800">{cat.name}</td>
                     <td className="px-4 py-3 text-gray-500">{parent?.name ?? '—'}</td>
                     <td className="px-4 py-3 text-gray-400">{new Date(cat.dateCreated).toLocaleDateString('ru')}</td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-2 justify-end">
-                        <Button size="sm" variant="secondary" onClick={() => openEdit(cat)}>Изменить</Button>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          loading={deleteMutation.isPending && deleteMutation.variables === cat.id}
-                          onClick={() => { if (confirm('Удалить?')) deleteMutation.mutate(cat.id) }}
-                        >
-                          Удалить
-                        </Button>
-                      </div>
-                    </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3">
+                        <div className="flex gap-2 justify-end">
+                          <Button size="sm" variant="secondary" onClick={() => openEdit(cat)}>Изменить</Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            loading={deleteMutation.isPending && deleteMutation.variables === cat.id}
+                            onClick={() => { if (confirm('Удалить?')) deleteMutation.mutate(cat.id) }}
+                          >
+                            Удалить
+                          </Button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 )
               })}

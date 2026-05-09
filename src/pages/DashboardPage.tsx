@@ -61,15 +61,17 @@ export function DashboardPage() {
               <Link to="/purchase-requests" className="text-sm text-indigo-600 hover:underline">Все заявки</Link>
             </div>
             <ul className="space-y-2">
-              {pendingRequests.slice(0, 5).map((r) => (
+              {pendingRequests.slice(0, 5).map((r) => {
+                const unit = products?.data?.find((p) => p.id === r.productId)?.unit ?? ''
+                return (
                 <li key={r.id} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
                   <span className="text-sm text-gray-600 font-mono">{r.id.slice(0, 8)}…</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm text-gray-500">{r.quantity} {r.unit}</span>
+                    <span className="text-sm text-gray-500">{r.quantity} {unit}</span>
                     <Badge label={r.status} />
                   </div>
                 </li>
-              ))}
+              )})}
             </ul>
           </div>
         )}

@@ -115,7 +115,6 @@ export interface PurchaseRequest {
   id: string
   productId: string
   quantity: number
-  unit: string
   requestedBy: string
   status: PurchaseRequestStatus
   comment: string | null

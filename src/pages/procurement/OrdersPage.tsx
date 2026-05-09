@@ -56,7 +56,7 @@ export function OrdersPage() {
       .filter((r) => r.id === currentId || !usedRequestIds.has(r.id))
       .map((r) => {
         const product = products.find((p) => p.id === r.productId)
-        return { value: r.id, label: `${product?.name ?? 'Товар'} × ${r.quantity} ${r.unit}` }
+        return { value: r.id, label: `${product?.name ?? 'Товар'} × ${r.quantity} ${product?.unit ?? ''}` }
       })
   }
 
@@ -291,7 +291,7 @@ export function OrdersPage() {
                   const product = products.find((p) => p.id === req?.productId)
                   return (
                     <div key={i} className="flex items-center justify-between text-sm bg-gray-50 rounded-lg px-3 py-2">
-                      <span className="text-gray-700">{product?.name ?? '—'} {req ? `× ${req.quantity} ${req.unit}` : ''}</span>
+                      <span className="text-gray-700">{product?.name ?? '—'} {req ? `× ${req.quantity} ${product?.unit ?? ''}` : ''}</span>
                       <span className="font-medium text-gray-800">{item.totalPrice.toLocaleString('ru')} {item.currency}</span>
                     </div>
                   )

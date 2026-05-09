@@ -17,7 +17,6 @@ import type { PurchaseRequest } from '../../types'
 const schema = z.object({
   productId: z.string().min(1, 'Выберите товар'),
   quantity: z.coerce.number().positive('Количество должно быть > 0'),
-  unit: z.string().min(1, 'Введите единицу'),
 })
 
 type FormData = z.infer<typeof schema>
@@ -46,7 +45,10 @@ export function PurchaseRequestsPage() {
   const { register: regReject, handleSubmit: handleReject, reset: resetReject, formState: { errors: rejectErrors } } = useForm<RejectData>({ resolver: zodResolver(rejectSchema) })
 
   const createMutation = useMutation({
-    mutationFn: (d: FormData) => procurementApi.createPurchaseRequest({ productId: d.productId, quantity: d.quantity, unit: d.unit }),
+    mutationFn: (d: FormData) => {
+      const unit = products.find((p) => p.id === d.productId)?.unit ?? ''
+      return procurementApi.createPurchaseRequest({ productId: d.productId, quantity: d.quantity, unit })
+    },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['purchase-requests'] }); setCreateOpen(false); reset() },
   })
 
@@ -97,7 +99,7 @@ export function PurchaseRequestsPage() {
                 return (
                   <tr key={r.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-4 py-3 font-medium text-gray-800">{product?.name ?? r.productId.slice(0, 8)}</td>
-                    <td className="px-4 py-3 text-gray-600">{r.quantity} {r.unit}</td>
+                    <td className="px-4 py-3 text-gray-600">{r.quantity} {product?.unit ?? ''}</td>
                     <td className="px-4 py-3"><Badge label={r.status} /></td>
                     <td className="px-4 py-3 text-gray-400 max-w-xs truncate">{r.comment ?? '—'}</td>
                     <td className="px-4 py-3 text-gray-400">{new Date(r.dateCreated).toLocaleDateString('ru')}</td>
@@ -142,7 +144,6 @@ export function PurchaseRequestsPage() {
         <form id="pr-form" onSubmit={handleSubmit((d) => createMutation.mutate(d))} className="space-y-4">
           <Select label="Товар" options={productOptions} placeholder="Выберите товар" error={errors.productId?.message} {...register('productId')} />
           <Input label="Количество" type="number" step="0.01" placeholder="0" error={errors.quantity?.message} {...register('quantity')} />
-          <Input label="Единица измерения" placeholder="шт., кг…" error={errors.unit?.message} {...register('unit')} />
         </form>
       </Modal>
 

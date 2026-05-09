@@ -23,6 +23,21 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>
 
+const UNIT_OPTIONS = [
+  { value: 'шт.',    label: 'шт. — штука' },
+  { value: 'кг',     label: 'кг — килограмм' },
+  { value: 'г',      label: 'г — грамм' },
+  { value: 'т',      label: 'т — тонна' },
+  { value: 'л',      label: 'л — литр' },
+  { value: 'мл',     label: 'мл — миллилитр' },
+  { value: 'м',      label: 'м — метр' },
+  { value: 'м²',     label: 'м² — квадратный метр' },
+  { value: 'м³',     label: 'м³ — кубический метр' },
+  { value: 'уп.',    label: 'уп. — упаковка' },
+  { value: 'компл.', label: 'компл. — комплект' },
+  { value: 'пара',   label: 'пара' },
+]
+
 export function ProductsPage() {
   const qc = useQueryClient()
   const [modalOpen, setModalOpen] = useState(false)
@@ -144,7 +159,7 @@ export function ProductsPage() {
         <form id="prod-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input label="Название" placeholder="Название товара" error={errors.name?.message} {...register('name')} />
           <Input label="Описание" placeholder="Описание" error={errors.description?.message} {...register('description')} />
-          <Input label="Единица измерения" placeholder="шт., кг, л…" error={errors.unit?.message} {...register('unit')} />
+          <Select label="Единица измерения" options={UNIT_OPTIONS} placeholder="Выберите единицу" error={errors.unit?.message} {...register('unit')} />
           <Select label="Категория" options={catOptions} placeholder="Выберите категорию" error={errors.categoryId?.message} {...register('categoryId')} />
           {editing && (
             <label className="flex items-center gap-2 text-sm text-gray-700">

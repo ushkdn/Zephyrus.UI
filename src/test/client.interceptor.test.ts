@@ -60,7 +60,6 @@ describe('Token refresh logic', () => {
 
   it('routes to login when refresh token is absent', async () => {
     let redirected = false
-    const originalHref = window.location.href
     const logout = vi.fn()
 
     const refreshToken: string | null = null
